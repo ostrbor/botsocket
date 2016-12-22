@@ -1,0 +1,25 @@
+---
+
+version: 1
+disable_existing_loggers: False
+formatters:
+  simple:
+    format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    datefmt: "%Y-%m-%d %H:%M"
+handlers:
+  console:
+    class: logging.StreamHandler
+    formatter: simple
+    stream: ext://sys.stdout
+    level: DEBUG
+  file:
+    class: logging.handlers.RotatingFileHandler
+    filename: "botsocket.log"
+    maxBytes: 2048
+    backupCount: 2
+    formatter: simple
+    level: DEBUG
+loggers:
+  botsocket:
+    handlers: [console, file]
+    level: DEBUG
