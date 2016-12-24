@@ -1,7 +1,8 @@
 import pytest
-from botsocket.utils import bin2dict, dict2bin
+from botsocket.utils import bin2dict, dict2bin, compare_vars
+from botsocket.server import process_request
 import botsocket
-from botsocket.server import _process_request
+from botsocket.exceptions import SettingsImproperlyConfigured
 
 MSG_BIN = b'{"command": "run", "params": {}}'
 MSG_BIN_REV = b'{"params": {}, "command": "run"}'
@@ -21,5 +22,22 @@ def test_process_request(monkeypatch):
         @staticmethod
         def run(params):
             return 'Success'
-    monkeypatch.setattr(botsocket.server, 'commands', Command())
-    assert 'Success' == _process_request(MSG_BIN)
+
+    monkeypatch.setattr(botsocket.server, 'import_module', lambda _: Command())
+    assert 'Success' == process_request(MSG_BIN)
+
+
+def test_compare_vars():
+    class Template:
+        VAR = ''
+
+    class SameTarget:
+        VAR = ''
+
+    class DifTarget:
+        __file__ = ''
+
+    with pytest.raises(SettingsImproperlyConfigured):
+        compare_vars(Template, DifTarget)
+
+    assert None == compare_vars(Template, SameTarget)
