@@ -1,54 +1,56 @@
+import ssl
 import logging
 import socket
-from .settings import (HOST, PORT, RECV, LANGUAGE, ALLOWED_HOST,
-                       CONNECTIONS_IN_QUEUE)
-from .exceptions import SocketBindError, CommandNotFoundError
+from . import commands
+from .settings import (HOST, PORT, RECV, ALLOWED_HOST, CONNECTIONS_IN_QUEUE)
+from .exceptions import (SocketBindError, CommandNotFoundError,
+                         RequestFormatError)
+from .utils import bin2dict, dict2bin
+
+logger = logging.getLogger(__name__)
 
 
-def _parse_request(bstr):
-    """ :byte string -> byte string of command
-    extract command from request """
-    return bstr.split(b' ')[0]
-
-
-def _run_command(cmd):
-    """ : byte str -> run cmd (result must be byte str) """
-    if not LANGUAGE.get(cmd):
+def _process_request(binary_request):
+    """ : binary request -> run command and return it's value
+    Command must be in format {'command': 'some name', 'params': {...}}
+    'some name' is imported from commands.py and called with **params. """
+    request = bin2dict(binary_request)  # might raise JSON exception
+    try:
+        command = getattr(commands, request['command'])
+    except AttributeError:
         raise CommandNotFoundError('Unknown command!')
-    else:
-        return LANGUAGE[cmd]()
+    result = command(request['params'])
+    return result
 
 
-def _host_is_valid(HOST):
-    """ : str -> bool """
-    return HOST == ALLOWED_HOST
-
-
-def start_server():
-    logger = logging.getLogger(__name__)
+def start_server(host='0.0.0.0', port=8888, recv=1024):
     bot_sock = socket.socket()
     bot_sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    ssl_sock = ssl.wrap_socket(bot_sock, certfile='cert.pem')
     try:
-        bot_sock.bind((HOST, PORT))
+        ssl_sock.bind((host, port))
     except Exception as e:
-        msg = 'Cant bind socket to {}:{}'.format(HOST, PORT)
+        msg = 'Cant bind socket to {}:{}'.format(host, port)
         logger.exception(msg)
         raise SocketBindError(msg, e)
-    bot_sock.listen(CONNECTIONS_IN_QUEUE)
+    ssl_sock.listen(CONNECTIONS_IN_QUEUE)
     while True:
-        client_connection, client_address = bot_sock.accept()
-        if _host_is_valid(client_address[0]):
-            request = client_connection.recv(RECV)
-            cmd = _parse_request(request)
+        try:
+            connection, address = ssl_sock.accept()  # address = (IP, PORT)
+        except ssl.SSLError as e:
+            logger.exception(str(e))
+            continue
+        if address[0] == ALLOWED_HOST:
+            binary_request = connection.recv(recv)
             try:
-                result = _run_command(cmd)
-                logger.info('Command: %s, Result: %s' % (cmd, result))
-            except CommandNotFoundError as e:
-                result = str(e).encode()
-                logger.exception()
+                response = _process_request(binary_request)
+                logger.info('IP: %s, Request: %s, Response: %s' %
+                            (address[0], binary_request, response))
+            except (CommandNotFoundError, RequestFormatError) as e:
+                response = str(e)
+                logger.exception(response)
+            connection.sendall(dict2bin(response))
         else:
-            msg = 'IP: %s is not allowed!' % client_address[0]
-            result = msg.encode()
-            logger.error(msg)
-        client_connection.sendall(result)
-        client_connection.close()
+            msg = 'IP: %s is not allowed!' % address[0]
+            logger.warn(msg)
+        connection.close()

@@ -1,21 +1,31 @@
-class BotSocketError(Exception):
+class BotSocketBaseError(Exception):
     """Base exception"""
     pass
 
 
-class LanguageMissingError(BotSocketError, ValueError):
-    """Set up LANGUAGE in settings.py"""
-    pass
-
-
-class SocketBindError(BotSocketError):
-    """Wrapper exception around socket bind error"""
+class BotSocketWrapperError(BotSocketBaseError):
+    """Wrap exception"""
 
     def __init__(self, msg, original_exception):
         super().__init__(msg + '(: %s)' % original_exception)
         self.original_exception = original_exception
 
 
-class CommandNotFoundError(BotSocketError):
-    """Cant find command in LANGUAGE """
+class LanguageMissingError(BotSocketBaseError, ValueError):
+    """Set up LANGUAGE in settings.py"""
+    pass
+
+
+class SocketBindError(BotSocketWrapperError):
+    """Wrap exception around socket bind error"""
+    pass
+
+
+class CommandNotFoundError(BotSocketBaseError):
+    """Cant find command in commands.py """
+    pass
+
+
+class RequestFormatError(BotSocketWrapperError):
+    """Request from socket can not be converted to json. """
     pass

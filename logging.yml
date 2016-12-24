@@ -12,14 +12,24 @@ handlers:
     formatter: simple
     stream: ext://sys.stdout
     level: DEBUG
-  file:
+  server:
     class: logging.handlers.RotatingFileHandler
-    filename: "botsocket.log"
+    filename: "server.log"
+    maxBytes: 2048
+    backupCount: 2
+    formatter: simple
+    level: DEBUG
+  client:
+    class: logging.handlers.RotatingFileHandler
+    filename: "client.log"
     maxBytes: 2048
     backupCount: 2
     formatter: simple
     level: DEBUG
 loggers:
-  botsocket:
-    handlers: [console, file]
+  botsocket.server:
+    handlers: [console, server]
+    level: DEBUG
+  botsocket.client:
+    handlers: [client]
     level: DEBUG

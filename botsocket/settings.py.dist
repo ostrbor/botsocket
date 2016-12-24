@@ -4,7 +4,10 @@ ALLOWED_HOST = '127.0.0.1'
 CONNECTIONS_IN_QUEUE = 0 # additional connections in queue
 LOG_CONFIG = 'logging.yml'
 
-# Language server and client use to speak. Client sends
+# Commands server and client use to speak. Client sends
 # command, server run function and return result.
-# LANGUAGE = {b'GET': lambda: b'RESULT'}
-LANGUAGE = {}
+# Command name must correspond to module with same name in commands/
+# In this case make sure there is login.py in commands/ with function login.
+COMMANDS = [{'command': 'login',
+            'params': {'username': 'User',
+                       'password': 'Password'}},]
