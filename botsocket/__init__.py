@@ -1,19 +1,11 @@
-from importlib import import_module
+"""Runs first. Export custom or default settings for use in other modules."""
 import os
 import logging.config
 import yaml
-from .exceptions import (LoggingSettingsNotFound, CertificateNotFound)
-from .utils import compare_vars
-from . import default_settings
+from .exceptions import BotSocketWrapperException
+from .utils import get_settings_module
 
-# Settings can be customized by env variable or
-# used default from current package
-settings_env = os.environ.get('BOTSOCKET_MODULE_SETTINGS',
-                              'botsocket.default_settings')
-settings = import_module(settings_env)
-
-# Check for exsistance of all needed vars in settings, raise error if not
-compare_vars(default_settings, settings)
+settings = get_settings_module()
 
 # Setup logger and check for cert file
 try:
@@ -21,11 +13,11 @@ try:
         config = yaml.safe_load(log_file.read())
         logging.config.dictConfig(config)
 except FileNotFoundError as e:
-    raise LoggingSettingsNotFound('Cant open logging settings file: %s' %
-                                  settings.LOG_FILE, e)
+    raise BotSocketWrapperException('Cant open logging settings file: %s' %
+                                       settings.LOG_FILE, e)
 if not os.path.isfile(settings.CERT_FILE):
-    raise CertificateNotFound('Cant find certificate file: %s' %
-                              settings.CERT_FILE)
+    raise BotSocketWrapperException('Cant find certificate file: %s' %
+                                   settings.CERT_FILE)
 
 from .server import start_server
 from .client import send_command

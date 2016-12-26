@@ -1,5 +1,7 @@
-"""Default settings used in case BOTSOCKET_MODULE_SETTINGS was not set. """
+"""Default settings used in case BOTSOCKET_MODULE_SETTINGS was not set.
+Variables must be either strings or ints."""
 
+# Server will reject all other HOSTs in HOST HEADER
 ALLOWED_HOST = '127.0.0.1'
 
 # Specified here because used by server and client
@@ -10,7 +12,7 @@ PORT = 8888
 CONNECTIONS_IN_QUEUE = 0
 
 # Amount of bytes to fetch from socket
-RECV = 1024
+BYTES_AMOUNT = 1024
 
 LOG_FILE = 'logging.yml'
 
@@ -18,6 +20,6 @@ LOG_FILE = 'logging.yml'
 CERT_FILE = 'cert.pem'
 
 # Commands that server and client use to speak.
-# Client sends {'command': 'cmdname', 'params': 'args'}
+# Client sends {'command': 'cmdname', 'params': {'args'}}
 # Server imports cmdname from COMMAND_MODULE and calls it with 'params'.
 COMMAND_MODULE = 'commands'

@@ -1,5 +1,5 @@
 import pytest
-from botsocket.utils import bin2dict, dict2bin, compare_vars
+from botsocket.utils import bin2dict, dict2bin, _has_same_vars, _has_empty_vars
 from botsocket.server import process_request
 import botsocket
 from botsocket.exceptions import SettingsImproperlyConfigured
@@ -27,17 +27,30 @@ def test_process_request(monkeypatch):
     assert 'Success' == process_request(MSG_BIN)
 
 
-def test_compare_vars():
-    class Template:
-        VAR = ''
+def test_hase_same_vars():
+    class DefaultSettings:
+        VAR = 'Some value'
 
-    class SameTarget:
-        VAR = ''
+    class ValidUserSettings:
+        VAR = 'Customized value'
 
-    class DifTarget:
+    class InvalidUserSettings:
+        # VAR is absent
         __file__ = ''
 
     with pytest.raises(SettingsImproperlyConfigured):
-        compare_vars(Template, DifTarget)
+        _has_same_vars(DefaultSettings, InvalidUserSettings)
+    assert None == _has_same_vars(DefaultSettings, ValidUserSettings)
 
-    assert None == compare_vars(Template, SameTarget)
+
+def test_has_empty_vars():
+    class ValidSettings:
+        VAR = 'Some value'
+
+    class InvalidSettings:
+        VAR = ''
+        __file__ = ''
+
+    with pytest.raises(SettingsImproperlyConfigured):
+        _has_empty_vars(InvalidSettings)
+    assert None == _has_empty_vars(ValidSettings)

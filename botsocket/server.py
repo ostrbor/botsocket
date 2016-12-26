@@ -3,11 +3,9 @@ import ssl
 import logging
 import socket
 from . import settings
-from .exceptions import (SocketBindError, RequestFormatError,
-                         CommandNotFoundError)
+from .exceptions import (BotSocketWrapperException, CommandNotFoundError)
 from .utils import bin2dict, dict2bin
 
-SERVER_HOST = '0.0.0.0'
 logger = logging.getLogger(__name__)
 
 
@@ -20,7 +18,7 @@ def process_request(binary_request):
     except ImportError as e:
         msg = 'Cant import %s' % settings.COMMAND_MODULE
         logger.exception(msg)
-        raise
+        raise BotSocketWrapperException(msg, e)
     try:
         command = getattr(command_module, request['command'])
     except AttributeError as e:
@@ -31,16 +29,16 @@ def process_request(binary_request):
     return result
 
 
-def start_server(host=SERVER_HOST, recv=settings.RECV):
+def start_server(server_ip='0.0.0.0', recv=settings.BYTES_AMOUNT):
     bot_sock = socket.socket()
     bot_sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     ssl_sock = ssl.wrap_socket(bot_sock, certfile=settings.CERT_FILE)
     try:
-        ssl_sock.bind((host, settings.PORT))
+        ssl_sock.bind((server_ip, settings.PORT))
     except Exception as e:
-        msg = 'Cant bind socket to {}:{}'.format(host, settings.PORT)
+        msg = 'Cant bind socket to {}:{}'.format(server_ip, settings.PORT)
         logger.exception(msg)
-        raise SocketBindError(msg, e)
+        raise BotSocketWrapperException(msg, e)
     ssl_sock.listen(settings.CONNECTIONS_IN_QUEUE)
     while True:
         try:
@@ -54,7 +52,7 @@ def start_server(host=SERVER_HOST, recv=settings.RECV):
                 response = process_request(binary_request)
                 logger.info('IP: %s, Request: %s, Response: %s' %
                             (address[0], binary_request, response))
-            except (CommandNotFoundError, RequestFormatError) as e:
+            except (CommandNotFoundError, BotSocketWrapperException) as e:
                 response = str(e)
                 logger.exception(response)
             connection.sendall(dict2bin(response))
