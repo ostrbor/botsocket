@@ -1,5 +1,9 @@
 """Schema of messages send from client to server. """
 
+error_schema = {
+    'error_msg': {'type': 'string'},
+}
+
 command_schema = {
     'name': {'type': 'string',
              'required': True,

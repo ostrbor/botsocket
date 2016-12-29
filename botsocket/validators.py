@@ -1,7 +1,8 @@
 """Command format: {'command_id': 'login', 'command': <obj of class Command>,
 'params': {...}}"""
 from cerberus import Validator
-from .schemas import command_schema, login_params_schema, placebet_params_schema
+from .schemas import (command_schema, login_params_schema, placebet_params_schema,
+                      error_schema)
 
 
 class CommandValidator(Validator):
@@ -20,3 +21,4 @@ class CommandValidator(Validator):
 command_validator = CommandValidator(command_schema)
 login_params_validator = Validator(login_params_schema)
 placebet_params_validator = Validator(placebet_params_schema)
+error_validator = Validator(error_schema)

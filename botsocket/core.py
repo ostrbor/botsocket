@@ -1,5 +1,4 @@
 import logging
-import jsonpickle
 from cerberus import DocumentError, SchemaError
 from .validators import (command_validator, login_params_validator,
                          placebet_params_validator)
@@ -23,15 +22,21 @@ def validate_command(command):
                                          command)
 
 
+def validate(command):
+    pass
+    
+
+
 def run_command(binary_request):
-    """ : binary request -> run command and return it's value """
-    command = jsonpickle.decode(binary_request.decode())
+    """ : binary request -> run command and return binary response"""
     try:
-        validate_command(command)
+        validate(command)
     except CommandValidationError as e:
         logger.exception(e)
-        return str(e)
+        return str(e).encode()
     else:
         command = command['object']
         result = command.run(**command['params'])
+        # TODO: convert result to binary
         return result
+

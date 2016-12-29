@@ -1,8 +1,11 @@
 from importlib import import_module
 import os
+import jsonpickle
+import json
 from .exceptions import (BotSocketWrapperException,
-                         SettingsImproperlyConfigured)
+                         SettingsImproperlyConfigured, BotSocketBaseException)
 from . import default_settings
+from .validators import error_validator
 
 
 def _has_empty_vars(user_settings):
@@ -39,3 +42,29 @@ def get_settings_module():
     _has_same_vars(default_settings, settings_module)
     _has_empty_vars(settings_module)
     return settings_module
+
+
+def bin2dict(binary_request):
+    """: binary : -> string (json) -> dict """
+    try:
+        request = jsonpickle.decode(binary_request.decode())
+    except json.decoder.JSONDecodeError as e:
+        raise BotSocketWrapperException('Cant convert bin to dict: %s' %
+                                        binary_request, e)
+    return request
+
+
+def dict2bin(response):
+    """: dict : -> string (json) -> binary """
+    if type(response) != dict:
+        raise BotSocketBaseException('%s is not dictionary.' % response)
+    binary_response = jsonpickle.encode(response).encode()
+    return binary_response
+
+
+def exc2bin(exc):
+    """:exception: -> binary """
+    msg = exc.__class__.__name__ + ': ' + str(exc)
+    response = {'error_msg': msg}
+    if error_validator.validate(response):
+        return dict2bin(response)
