@@ -1,56 +1,61 @@
 import pytest
-from botsocket.utils import bin2dict, dict2bin, _has_same_vars, _has_empty_vars
-from botsocket.server import process_request
-import botsocket
-from botsocket.exceptions import SettingsImproperlyConfigured
+from unittest.mock import patch, MagicMock
+from botsocket.utils import (_has_same_vars, _has_empty_vars)
+from botsocket.core import validate_command, run_command
+from botsocket.exceptions import (SettingsImproperlyConfigured,
+                                  CommandValidationError, )
 
 MSG_BIN = b'{"command": "run", "params": {}}'
 MSG_BIN_REV = b'{"params": {}, "command": "run"}'
 MSG = {"command": "run", "params": {}}
 
-
-def test_bin2dict():
-    assert MSG == bin2dict(MSG_BIN)
-
-
-def test_dict2bin():
-    assert MSG_BIN == dict2bin(MSG) or MSG_BIN_REV == dict2bin(MSG)
-
-
-def test_process_request(monkeypatch):
-    class Command:
-        @staticmethod
-        def run(params):
-            return 'Success'
-
-    monkeypatch.setattr(botsocket.server, 'import_module', lambda _: Command())
-    assert 'Success' == process_request(MSG_BIN)
+valid_settings = MagicMock()
+valid_settings.VAR = 'Customized value'
 
 
 def test_hase_same_vars():
-    class DefaultSettings:
-        VAR = 'Some value'
-
-    class ValidUserSettings:
-        VAR = 'Customized value'
-
-    class InvalidUserSettings:
-        # VAR is absent
-        __file__ = ''
-
+    default_settings = MagicMock()
+    default_settings.VAR = 'Some value'
+    invalid_settings = MagicMock()
+    invalid_settings.__file__ = ''
     with pytest.raises(SettingsImproperlyConfigured):
-        _has_same_vars(DefaultSettings, InvalidUserSettings)
-    assert None == _has_same_vars(DefaultSettings, ValidUserSettings)
+        _has_same_vars(default_settings, invalid_settings)
+    assert None == _has_same_vars(default_settings, valid_settings)
 
 
 def test_has_empty_vars():
-    class ValidSettings:
-        VAR = 'Some value'
-
-    class InvalidSettings:
-        VAR = ''
-        __file__ = ''
-
+    invalid_settings = MagicMock()
+    invalid_settings.__file__ = ''
+    invalid_settings.VAR = ''
     with pytest.raises(SettingsImproperlyConfigured):
-        _has_empty_vars(InvalidSettings)
-    assert None == _has_empty_vars(ValidSettings)
+        _has_empty_vars(invalid_settings)
+    assert None == _has_empty_vars(valid_settings)
+
+
+def test_validate_command():
+    command = MagicMock()
+    with patch('botsocket.core.command_validator') as mock_command_validator:
+        mock_command_validator.validate = MagicMock(return_value=False)
+        with pytest.raises(CommandValidationError):
+            validate_command(command)
+        mock_command_validator.validate = MagicMock(return_value=True)
+        command.__getitem__.return_value = 'login'
+        with patch('botsocket.core.login_params_validator') as mock_login:
+            mock_login.validate = MagicMock(return_value=False)
+            with pytest.raises(CommandValidationError):
+                validate_command(command)
+            mock_login.validate = MagicMock(return_value=True)
+            command.__getitem__.return_value = 'placebet'
+            with patch(
+                    'botsocket.core.placebet_params_validator') as mock_placebet:
+                mock_placebet.validate = MagicMock(return_value=False)
+                with pytest.raises(CommandValidationError):
+                    validate_command(command)
+
+# @patch('botsocket.core.jsonpickle.decode')
+# def test_run_command(command):
+#     with pytest.raises(CommandValidationError):
+#         run_command(b'')
+    # with patch('botsocket.core.validate_command') as mock_validate:
+    #     mock_validate.return_value = True
+    #     command.__gititem__.return_value = command

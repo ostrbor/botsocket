@@ -3,13 +3,12 @@ class BotSocketBaseException(Exception):
     pass
 
 
-class CommandNotFoundError(BotSocketBaseException):
-    """Cant find command in commands.py """
-    pass
-
-
 class SettingsImproperlyConfigured(BotSocketBaseException):
     """Custom settings file doesn't have variables like default_settings has """
+    pass
+
+class CommandValidationError(BotSocketBaseException):
+    """Command has invalid format. """
     pass
 
 
