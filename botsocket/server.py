@@ -4,24 +4,18 @@ import logging
 import socket
 from . import settings
 from .exceptions import (BotSocketWrapperException, BotSocketBaseException)
-from .core import run_command
+from .core import run_command, handle_request
 from .utils import bin2dict, dict2bin, exc2bin
 
 logger = logging.getLogger(__name__)
 
 
 def _event_handler(connection, recv):
-    try:
-        binary_request = connection.recv(recv)
-        request = bin2dict(binary_request)
-        response = run_command(request)
-        logger.info('IP: %s, Request: %s, Response: %s' %
-                    (address[0], binary_request, response))
-        binary_response = dict2bin(response)
-    except BotSocketBaseException as e:
-        binary_response = exc2bin(e)
-        logger.exception(binary_response)
-    connection.sendall(binary_response)
+    request = connection.recv(recv)
+    response = handle_request(request)
+    logger.info('IP: %s, Request: %s, Response: %s' %
+                (address[0], request, response))
+    connection.sendall(response)
 
 
 def _event_loop(ssl_sock, recv):
