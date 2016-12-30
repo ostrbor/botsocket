@@ -24,7 +24,6 @@ def validate_command(command):
 
 def validate(command):
     pass
-    
 
 
 def run_command(binary_request):
@@ -39,4 +38,3 @@ def run_command(binary_request):
         result = command.run(**command['params'])
         # TODO: convert result to binary
         return result
-

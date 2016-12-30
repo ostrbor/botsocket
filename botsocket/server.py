@@ -3,25 +3,25 @@ import ssl
 import logging
 import socket
 from . import settings
-from .exceptions import (BotSocketWrapperException,
-                         BotSocketBaseException)
+from .exceptions import (BotSocketWrapperException, BotSocketBaseException)
 from .core import run_command
 from .utils import bin2dict, dict2bin, exc2bin
 
 logger = logging.getLogger(__name__)
 
 
-def _event_handler(connection):
+def _event_handler(connection, recv):
     try:
         binary_request = connection.recv(recv)
         request = bin2dict(binary_request)
-        response = run_command(binary_request)
+        response = run_command(request)
         logger.info('IP: %s, Request: %s, Response: %s' %
                     (address[0], binary_request, response))
+        binary_response = dict2bin(response)
     except BotSocketBaseException as e:
-        response = dict2bin(exc2bin(e))
-        logger.exception(response)
-    connection.sendall(response)
+        binary_response = exc2bin(e)
+        logger.exception(binary_response)
+    connection.sendall(binary_response)
 
 
 def _event_loop(ssl_sock, recv):
@@ -32,7 +32,7 @@ def _event_loop(ssl_sock, recv):
             logger.exception(str(e))
             continue
         if address[0] == settings.ALLOWED_HOST:
-            _event_handler(connection)
+            _event_handler(connection, recv)
         else:
             msg = 'IP: %s is not allowed!' % address[0]
             logger.warn(msg)
