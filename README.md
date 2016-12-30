@@ -42,7 +42,7 @@ if __name__ == '__main__':
   result = send_command(cmd)
 ```
 ---
-Notes: 
+Notes for production: 
 - create *settings.py* and make sure it has same variables as in botsocket.default_settings.py;
 - create self-signed certificate *cert.pem*;
 - create *logging.yml*;
