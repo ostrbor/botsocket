@@ -12,6 +12,7 @@ class Resolver:
                 self._getmodule(command),
                 command.__class__.__name__ + 'Validator')
         except AttributeError:
+            return None
 
     def handler_for(self, command):
         try:
@@ -19,6 +20,7 @@ class Resolver:
                 self._getmodule(command),
                 command.__class__.__name__ + 'Handler')
         except AttributeError:
+            return None
 
     def _getmodule(self, command):
         return inspect.getmodule(command)

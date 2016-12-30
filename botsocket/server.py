@@ -3,9 +3,8 @@ import ssl
 import logging
 import socket
 from . import settings
-from .exceptions import (BotSocketWrapperException, BotSocketBaseException)
-from .core import run_command, handle_request
-from .utils import bin2dict, dict2bin, exc2bin
+from .exceptions import BotSocketWrapperException
+from .core import handle_request
 
 logger = logging.getLogger(__name__)
 

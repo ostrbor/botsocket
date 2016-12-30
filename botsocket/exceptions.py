@@ -8,11 +8,6 @@ class SettingsImproperlyConfigured(BotSocketBaseException):
     pass
 
 
-class CommandValidationError(BotSocketBaseException):
-    """Command has invalid format. """
-    pass
-
-
 class BotSocketWrapperException(BotSocketBaseException):
     """Wrap exception"""
 
