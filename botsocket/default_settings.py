@@ -1,6 +1,9 @@
 """Default settings used in case BOTSOCKET_MODULE_SETTINGS was not set.
 Variables must be either strings or ints."""
 
+# Client needs it to connect
+SERVER_HOST = '127.0.0.1'
+
 # Server will reject all other HOSTs in HOST HEADER
 ALLOWED_HOST = '127.0.0.1'
 
@@ -18,8 +21,3 @@ LOG_FILE = 'logging.yml'
 
 # Self-signed certificate.
 CERT_FILE = 'cert.pem'
-
-# Commands that server and client use to speak.
-# Client sends {'command': 'cmdname', 'params': {'args'}}
-# Server imports cmdname from COMMAND_MODULE and calls it with 'params'.
-COMMAND_MODULE = 'commands'

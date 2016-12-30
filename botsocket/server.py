@@ -9,11 +9,11 @@ from .core import handle_request
 logger = logging.getLogger(__name__)
 
 
-def _event_handler(connection, recv):
+def _event_handler(connection, recv, ip_address):
     request = connection.recv(recv)
     response = handle_request(request)
     logger.info('IP: %s, Request: %s, Response: %s' %
-                (address[0], request, response))
+                (ip_address, request, response))
     connection.sendall(response)
 
 
@@ -25,7 +25,7 @@ def _event_loop(ssl_sock, recv):
             logger.exception(str(e))
             continue
         if address[0] == settings.ALLOWED_HOST:
-            _event_handler(connection, recv)
+            _event_handler(connection, recv, address[0])
         else:
             msg = 'IP: %s is not allowed!' % address[0]
             logger.warn(msg)
