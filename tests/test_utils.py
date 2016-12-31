@@ -28,6 +28,3 @@ def test_has_empty_vars_raises_exc():
     with pytest.raises(SettingsImproperlyConfigured):
         _has_empty_vars(invalid_settings)
     assert None == _has_empty_vars(valid_settings)
-
-
-
