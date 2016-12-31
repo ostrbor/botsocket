@@ -14,10 +14,10 @@ try:
         logging.config.dictConfig(config)
 except FileNotFoundError as e:
     raise BotSocketWrapperException('Cant open logging settings file: %s' %
-                                       settings.LOG_FILE, e)
+                                    settings.LOG_FILE, e)
 if not os.path.isfile(settings.CERT_FILE):
     raise BotSocketWrapperException('Cant find certificate file: %s' %
-                                   settings.CERT_FILE)
+                                    settings.CERT_FILE)
 
 from .server import start_server
 from .client import send_command
