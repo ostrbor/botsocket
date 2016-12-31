@@ -50,7 +50,11 @@ myclient.py
 --------------
 
 Notes for production: 
-- create *settings.py* and make sure it has same variables as in botsocket.default\_settings.py; 
+
+- create *settings.py* and make sure it has same variables as in botsocket.default\_settings.py;
+
 - create self-signed certificate *cert.pem*; 
+
 - create *logging.yml*; 
+
 - import all commands in myserver.py in order to unpickle command's objects.
