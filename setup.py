@@ -7,6 +7,11 @@ def readme():
         return f.read()
 
 
+def requirements():
+    with open('requirements.txt') as req:
+        return req.read().splitlines()
+
+
 setup(
     name='botsocket',
     version='0.1',
@@ -18,13 +23,4 @@ setup(
     keywords='bot botnet socket server',
     url='https://github.com/ostrbor/botsocket',
     packages=['botsocket'],
-    install_requires=['cffi',
-                      'cryptography',
-                      'idna',
-                      'py',
-                      'pyasn1',
-                      'pycparser',
-                      'pyOpenSSL',
-                      'pytest',
-                      'PyYAML',
-                      'six', ])
+    install_requires=requirements())
