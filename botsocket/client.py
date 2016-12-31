@@ -6,6 +6,7 @@ from . import settings
 
 logger = logging.getLogger(__name__)
 
+
 def send_command(command, server_host=settings.SERVER_HOST):
     sock = socket.socket()
     sock.connect((server_host, settings.PORT))

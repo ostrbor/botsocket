@@ -38,5 +38,3 @@ def get_settings_module():
     _has_same_vars(default_settings, settings_module)
     _has_empty_vars(settings_module)
     return settings_module
-
-

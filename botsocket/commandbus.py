@@ -6,6 +6,7 @@ from .exceptions import CommandHandlerNotFound
 class Resolver:
     """Retrieves validator class and handler class of
     command using naming conventions. """
+
     def validator_for(self, command):
         try:
             return getattr(
@@ -37,8 +38,8 @@ class Bus:
 
         handler_cls = self.resolver.handler_for(command)
         if handler_cls is None:
-            raise CommandHandlerError('Unable to find handler for ' +
-                                      command.__class__.__name__)
+            raise CommandHandlerNotFound('Unable to find handler for ' +
+                                         command.__class__.__name__)
         return handler_cls().handle(command)
 
 

@@ -4,7 +4,7 @@ class BotSocketBaseException(Exception):
 
 
 class SettingsImproperlyConfigured(BotSocketBaseException):
-    """Custom settings file doesn't have variables like default_settings has """
+    """Custom settings file doesn't have variables like default_settings has"""
     pass
 
 

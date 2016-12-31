@@ -1,4 +1,3 @@
-from importlib import import_module
 import ssl
 import logging
 import socket
