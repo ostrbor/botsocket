@@ -18,7 +18,7 @@ def test_has_same_vars_raises_exc():
     invalid_settings.__file__ = ''
     with pytest.raises(SettingsImproperlyConfigured):
         _has_same_vars(default_settings, invalid_settings)
-    assert None == _has_same_vars(default_settings, valid_settings)
+    assert _has_same_vars(default_settings, valid_settings) is None
 
 
 def test_has_empty_vars_raises_exc():
@@ -27,4 +27,4 @@ def test_has_empty_vars_raises_exc():
     invalid_settings.VAR = ''
     with pytest.raises(SettingsImproperlyConfigured):
         _has_empty_vars(invalid_settings)
-    assert None == _has_empty_vars(valid_settings)
+    assert _has_empty_vars(valid_settings) is None

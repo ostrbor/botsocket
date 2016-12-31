@@ -19,5 +19,11 @@ if not os.path.isfile(settings.CERT_FILE):
     raise BotSocketWrapperException('Cant find certificate file: %s' %
                                     settings.CERT_FILE)
 
-from .server import start_server
-from .client import send_command
+# Can't import before settings definition.
+# try wrapper to avoid flake8 warnings
+try:
+    from .server import start_server
+    from .client import send_command
+    __all__ = [start_server, send_command]
+except Exception:
+    raise
