@@ -3,10 +3,12 @@ botsocket
 
 Secure socket communication via botnet
 
+>>> pip install botsocket
+
 Default settings are valid only for localhost testing. Based on Command
 Bus design pattern.
 
-myserver.py
+**myserver.py**
 
 .. code:: python
 
@@ -19,7 +21,7 @@ myserver.py
       # os.environ['BOTSOCKET_SETTINGS_MODULE'] = 'settings.py' 
       start_server()
 
-mycommands.py
+**mycommands.py**
 
 .. code:: python
 
@@ -33,7 +35,7 @@ mycommands.py
       def handle(self, command):
           return command.msg
 
-myclient.py
+**myclient.py**
 
 .. code:: python
 
