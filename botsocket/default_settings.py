@@ -1,4 +1,4 @@
-"""Default settings used in case BOTSOCKET_MODULE_SETTINGS was not set.
+"""Default settings used in case BOTSOCKET_SETTINGS_MODULE was not set.
 Variables must be either strings or ints."""
 
 # Client needs it to connect
