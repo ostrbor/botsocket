@@ -12,5 +12,6 @@ def handle_request(binary_request):
     except BotSocketBaseException as e:
         response = '500: ' + str(e)
     else:
-        response = '200: ' + result
+        msg = result if result else 'None'
+        response = '200: ' + msg
     return pickle.dumps(response)
