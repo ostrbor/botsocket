@@ -1,12 +1,15 @@
 """Runs first. Export custom or default settings for use in other modules."""
-import os
 import logging.config
+import os
+
 import yaml
+
 from .exceptions import BotSocketWrapperException
 from .utils import get_settings_module
 
 settings = get_settings_module()
 
+# Delete logging
 # Setup logger and check for cert file
 try:
     with open(settings.LOG_FILE) as log_file:
