@@ -5,8 +5,7 @@ Secure socket communication via botnet
 
 >>> pip install botsocket
 
-Default settings are valid only for localhost testing. Based on Command
-Bus design pattern.
+Based on Command Bus design pattern.
 
 **myserver.py**
 
@@ -17,9 +16,7 @@ Bus design pattern.
     from mycommands import *
 
     if __name__ == '__main__':
-      # uncomment for production
-      # os.environ['BOTSOCKET_SETTINGS_MODULE'] = 'settings.py' 
-      start_server()
+      start_server(listen_ip='0.0.0.0', port=PORT, allowed_host=CLIENT_IP)
 
 **mycommands.py**
 
@@ -30,7 +27,7 @@ Bus design pattern.
     class MyCommand(Command):
       def __init__(self, msg):
         self.msg = msg
-        
+
     class MyCommandHandler(CommandHandler):
       def handle(self, command):
           return command.msg
@@ -44,19 +41,17 @@ Bus design pattern.
     from mycommands import MyCommand
 
     if __name__ == '__main__':
-      # uncomment for production
-      # os.environ['BOTSOCKET_SETTINGS_MODULE'] = 'settings.py' 
       cmd = MyCommand('yo')
-      result = send_command(cmd)
+      result = send_command(cmd, server_ip=SERVER_IP, port=PORT)
 
 --------------
 
-Notes for production: 
+Notes for production:
 
-- create *settings.py* and make sure it has same variables as in botsocket.default\_settings.py;
+- create self-signed certificate *cert.pem*;
 
-- create self-signed certificate *cert.pem*; 
+>>> openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -days 365
 
-- create *logging.yml*; 
+- create *logging.yml*;
 
 - import all commands in myserver.py in order to unpickle command's objects.
