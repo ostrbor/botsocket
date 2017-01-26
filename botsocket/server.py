@@ -7,7 +7,7 @@ import settings
 from .core import handle_request
 from .exceptions import BotSocketWrapperException
 
-SERVER_IP = '0.0.0.0'
+LISTEN_IP = '0.0.0.0'
 PORT = 8888
 ALLOWED_HOST = '127.0.0.1'
 logger = logging.getLogger(__name__)
@@ -36,14 +36,14 @@ def _event_loop(ssl_sock, allowed_host, recv):
         connection.close()
 
 
-def start_server(server_ip=SERVER_IP, port=PORT, allowed_host=ALLOWED_HOST):
+def start_server(listen_ip=LISTEN_IP, port=PORT, allowed_host=ALLOWED_HOST):
     bot_sock = socket.socket()
     bot_sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     ssl_sock = ssl.wrap_socket(bot_sock, certfile=settings.CERT_FILE)
     try:
-        ssl_sock.bind((server_ip, port))
+        ssl_sock.bind((listen_ip, port))
     except Exception as e:
-        msg = 'Cant bind socket to {}:{}'.format(server_ip, port)
+        msg = 'Cant bind socket to {}:{}'.format(listen_ip, port)
         logger.exception(msg)
         raise BotSocketWrapperException(msg, e)
     ssl_sock.listen(settings.CONNECTIONS_IN_QUEUE)
