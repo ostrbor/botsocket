@@ -1,15 +1,18 @@
-import ssl
 import logging
-import socket
 import pickle
-from . import settings
+import socket
+import ssl
 
+import settings
+
+PORT = 8888
+SERVER_IP = '127.0.0.1'
 logger = logging.getLogger(__name__)
 
 
-def send_command(command, server_host=settings.SERVER_HOST):
+def send_command(command, server_ip=SERVER_IP, port=PORT):
     sock = socket.socket()
-    sock.connect((server_host, settings.PORT))
+    sock.connect((server_ip, port))
     ssl_sock = ssl.wrap_socket(sock, certfile=settings.CERT_FILE)
     request = pickle.dumps(command)
     ssl_sock.send(request)
