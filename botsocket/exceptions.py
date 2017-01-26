@@ -3,11 +3,6 @@ class BotSocketBaseException(Exception):
     pass
 
 
-class SettingsImproperlyConfigured(BotSocketBaseException):
-    """Custom settings file doesn't have variables like default_settings has"""
-    pass
-
-
 class BotSocketWrapperException(BotSocketBaseException):
     """Wrap exception"""
 
