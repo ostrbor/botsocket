@@ -25,12 +25,12 @@ def _event_handler(connection, recv, ip_address):
         result = bus.execute(command)
     except BotSocketBaseException as e:
         response = str(e)
-        connection.sendall(response)
+        connection.sendall(pickle.dumps(response))
         msg = "Sent error of %s: %s" % (command.__class__.__name__, response)
         logger.error(msg)
     else:
         response = result if result else 'None'
-        connection.sendall(response)
+        connection.sendall(pickle.dumps(response))
         msg = "Sent result of %s: %s" % (command.__class__.__name__, response)
         logger.info(msg)
 
