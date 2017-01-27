@@ -14,26 +14,25 @@ ALLOWED_HOST = '127.0.0.1'
 logger = logging.getLogger(__name__)
 
 
-def _handle_request(binary_request):
-    """: binary_request : -> binary_response """
-    command = pickle.loads(binary_request)
+def _event_handler(connection, recv, ip_address):
+    request = connection.recv(recv)
+    command = pickle.loads(request)
+    msg = "Received %s with params: %s\n\tFrom IP %s" % (
+        command.__class__.__name__, command.params_to_log, ip_address)
+    logger.info(msg)
     bus = Bus()
     try:
         result = bus.execute(command)
     except BotSocketBaseException as e:
-        response = '500: ' + str(e)
+        response = str(e)
+        connection.sendall(response)
+        msg = "Sent error of %s: %s" % (command.__class__.__name__, response)
+        logger.error(msg)
     else:
-        msg = result if result else 'None'
-        response = '200: ' + msg
-    return pickle.dumps(response)
-
-
-def _event_handler(connection, recv, ip_address):
-    request = connection.recv(recv)
-    response = _handle_request(request)
-    logger.info('IP: %s, Request: %s, Response: %s' %
-                (ip_address, request, response))
-    connection.sendall(response)
+        response = result if result else 'None'
+        connection.sendall(response)
+        msg = "Sent result of %s: %s" % (command.__class__.__name__, response)
+        logger.info(msg)
 
 
 def _event_loop(ssl_sock, allowed_host, recv):
@@ -46,7 +45,8 @@ def _event_loop(ssl_sock, allowed_host, recv):
         if address[0] == allowed_host:
             _event_handler(connection, recv, address[0])
         else:
-            msg = 'IP: %s is not allowed!' % address[0]
+            msg = 'Blocked IP: %s\tServer has allowed ip set to %s' % (
+                address[0], allowed_host)
             logger.warn(msg)
         connection.close()
 
