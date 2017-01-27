@@ -13,3 +13,7 @@ class BotSocketWrapperException(BotSocketBaseException):
 
 class CommandHandlerNotFound(BotSocketBaseException):
     pass
+
+
+class CommandExecutionException(BotSocketBaseException):
+    pass
