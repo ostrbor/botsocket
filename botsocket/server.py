@@ -1,11 +1,12 @@
 import logging
+import pickle
 import socket
 import ssl
 
 import settings
 
-from .core import handle_request
-from .exceptions import BotSocketWrapperException
+from .commandbus import Bus
+from .exceptions import BotSocketBaseException, BotSocketWrapperException
 
 LISTEN_IP = '0.0.0.0'
 PORT = 8888
@@ -13,9 +14,23 @@ ALLOWED_HOST = '127.0.0.1'
 logger = logging.getLogger(__name__)
 
 
+def _handle_request(binary_request):
+    """: binary_request : -> binary_response """
+    command = pickle.loads(binary_request)
+    bus = Bus()
+    try:
+        result = bus.execute(command)
+    except BotSocketBaseException as e:
+        response = '500: ' + str(e)
+    else:
+        msg = result if result else 'None'
+        response = '200: ' + msg
+    return pickle.dumps(response)
+
+
 def _event_handler(connection, recv, ip_address):
     request = connection.recv(recv)
-    response = handle_request(request)
+    response = _handle_request(request)
     logger.info('IP: %s, Request: %s, Response: %s' %
                 (ip_address, request, response))
     connection.sendall(response)
