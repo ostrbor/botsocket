@@ -3,7 +3,7 @@ import pickle
 import socket
 import ssl
 
-import settings
+from . import settings
 
 PORT = 8888
 SERVER_IP = '127.0.0.1'

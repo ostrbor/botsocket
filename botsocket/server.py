@@ -3,8 +3,7 @@ import pickle
 import socket
 import ssl
 
-import settings
-
+from . import settings
 from .commandbus import Bus
 from .exceptions import BotSocketBaseException, BotSocketWrapperException
 
