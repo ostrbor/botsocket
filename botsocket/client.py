@@ -19,7 +19,7 @@ def send_command(command, server_ip=SERVER_IP, port=PORT):
     msg = "Sent %s: %s" % (command.__class__.__name__, command.params_to_log)
     logger.info(msg)
     response_bytes = ssl_sock.recv(settings.BYTES_AMOUNT)
-    response = pickle.loads(response_bytes)
+    response = pickle.loads(response_bytes) if response_bytes else 'None'
     msg = "Received: %s" % (response)
     logger.info(msg)
     sock.close()
