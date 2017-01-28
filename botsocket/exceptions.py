@@ -16,4 +16,5 @@ class CommandHandlerNotFound(BotSocketBaseException):
 
 
 class CommandExecutionException(BotSocketBaseException):
+    "Server catches it while trying command execution"
     pass
