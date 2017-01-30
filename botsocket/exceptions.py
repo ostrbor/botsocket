@@ -18,3 +18,8 @@ class CommandHandlerNotFound(BotSocketBaseException):
 class CommandExecutionException(BotSocketBaseException):
     "Server catches it while trying command execution"
     pass
+
+
+class KillServerException(SystemExit):
+    "Raise it in command to stop server"
+    pass
