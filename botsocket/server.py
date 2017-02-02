@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 def _event_handler(connection, recv, ip_address):
     request = connection.recv(recv)
     command = pickle.loads(request)
-    msg = "Received %s with params: %s [From IP %s]" % (
+    msg = "Received %s: %s. From IP %s" % (
         command.__class__.__name__, command.command_description, ip_address)
     logger.info(msg)
     bus = Bus()
