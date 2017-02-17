@@ -9,7 +9,7 @@ from .exceptions import BotSocketBaseException, BotSocketWrapperException
 
 LISTEN_IP = '0.0.0.0'
 PORT = 8888
-ALLOWED_HOST = '127.0.0.1'
+ALLOWED_HOSTS = ['127.0.0.1']  # '*' means all hosts are allowed
 logger = logging.getLogger(__name__)
 
 
@@ -34,23 +34,23 @@ def _event_handler(connection, recv, ip_address):
         logger.info(msg)
 
 
-def _event_loop(ssl_sock, allowed_host, recv):
+def _event_loop(ssl_sock, allowed_hosts, recv):
     while True:
         try:
             connection, address = ssl_sock.accept()  # address = (IP, PORT)
         except ssl.SSLError as e:
             logger.exception(str(e))
             continue
-        if address[0] == allowed_host:
+        if address[0] in allowed_hosts or '*' in allowed_hosts:
             _event_handler(connection, recv, address[0])
         else:
             msg = 'Blocked IP: %s\tServer has allowed ip set to %s' % (
-                address[0], allowed_host)
+                address[0], allowed_hosts)
             logger.warn(msg)
         connection.close()
 
 
-def start_server(listen_ip=LISTEN_IP, port=PORT, allowed_host=ALLOWED_HOST):
+def start_server(listen_ip=LISTEN_IP, port=PORT, allowed_hosts=ALLOWED_HOSTS):
     bot_sock = socket.socket()
     bot_sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     ssl_sock = ssl.wrap_socket(bot_sock, certfile=settings.CERT_FILE)
@@ -61,4 +61,4 @@ def start_server(listen_ip=LISTEN_IP, port=PORT, allowed_host=ALLOWED_HOST):
         logger.exception(msg)
         raise BotSocketWrapperException(msg, e)
     ssl_sock.listen(settings.CONNECTIONS_IN_QUEUE)
-    _event_loop(ssl_sock, allowed_host, settings.BYTES_AMOUNT)
+    _event_loop(ssl_sock, allowed_hosts, settings.BYTES_AMOUNT)
