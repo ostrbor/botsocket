@@ -14,7 +14,7 @@ def requirements():
 
 setup(
     name='botsocket',
-    version='0.2.2',
+    version='0.2.4',
     description='socket server for bot communication',
     long_description=readme(),
     author='Boris Ostretsov',
