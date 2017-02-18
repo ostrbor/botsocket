@@ -24,3 +24,4 @@ def send_command(command, server_ip=SERVER_IP, port=PORT):
     msg = "Received: %s" % (response)
     logger.info(msg)
     sock.close()
+    return response

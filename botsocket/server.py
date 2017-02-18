@@ -3,13 +3,19 @@ import pickle
 import socket
 import ssl
 
-from . import settings
 from .commandbus import Bus
 from .exceptions import BotSocketBaseException, BotSocketWrapperException
 
 LISTEN_IP = '0.0.0.0'
 PORT = 8888
-ALLOWED_HOSTS = ['127.0.0.1']  # '*' means all hosts are allowed
+ALLOWED_HOSTS = ['*']  # '*' means all hosts are allowed
+
+# Number of additional connections in queue to
+# hold and switch after current connection is processed.
+CONNECTIONS_IN_QUEUE = 0
+
+BYTES_AMOUNT = 1024  # Amount of bytes to fetch from socket
+
 logger = logging.getLogger(__name__)
 
 
@@ -50,15 +56,18 @@ def _event_loop(ssl_sock, allowed_hosts, recv):
         connection.close()
 
 
-def start_server(listen_ip=LISTEN_IP, port=PORT, allowed_hosts=ALLOWED_HOSTS):
+def start_server(listen_ip=LISTEN_IP,
+                 port=PORT,
+                 allowed_hosts=ALLOWED_HOSTS,
+                 certfile='cert.pem'):
     bot_sock = socket.socket()
     bot_sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    ssl_sock = ssl.wrap_socket(bot_sock, certfile=settings.CERT_FILE)
+    ssl_sock = ssl.wrap_socket(bot_sock, certfile=certfile)
     try:
         ssl_sock.bind((listen_ip, port))
     except Exception as e:
         msg = 'Cant bind socket to {}:{}'.format(listen_ip, port)
         logger.exception(msg)
         raise BotSocketWrapperException(msg, e)
-    ssl_sock.listen(settings.CONNECTIONS_IN_QUEUE)
-    _event_loop(ssl_sock, allowed_hosts, settings.BYTES_AMOUNT)
+    ssl_sock.listen(CONNECTIONS_IN_QUEUE)
+    _event_loop(ssl_sock, allowed_hosts, BYTES_AMOUNT)
